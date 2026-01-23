@@ -23,6 +23,9 @@
 # Build artifacts
 *.zip
 *.pem
+parquet-ext/lib/
+parquet-ext/_metadata/
+node_modules/
 
 # Scripts (generation helpers, not needed in extension)
 scripts/

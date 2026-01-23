@@ -8,13 +8,23 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["webNavigation"],
+  "permissions": ["webNavigation", "declarativeNetRequest", "downloads"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "declarative_net_request": {
+    "rule_resources": [{
+      "id": "parquet_rules",
+      "enabled": true,
+      "path": "rules.json"
+    }]
+  },
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
   },
   "web_accessible_resources": [{
-    "resources": ["viewer.html", "viewer.js", "viewer-utils.js"],
+    "resources": ["viewer.html", "viewer.js", "viewer-utils.js", "lib/*"],
     "matches": ["<all_urls>"]
   }]
 }

@@ -1,0 +1,14 @@
+[{
+  "id": 1,
+  "priority": 1,
+  "action": {
+    "type": "modifyHeaders",
+    "responseHeaders": [
+      { "header": "Content-Disposition", "operation": "remove" }
+    ]
+  },
+  "condition": {
+    "regexFilter": "\\.parquet([?#]|$)",
+    "resourceTypes": ["main_frame"]
+  }
+}]

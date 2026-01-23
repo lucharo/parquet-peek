@@ -1,5 +1,5 @@
-// DuckDB-wasm for Parquet parsing
-import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm/+esm';
+// DuckDB-wasm for Parquet parsing (bundled locally for MV3 CSP compliance)
+import * as duckdb from './lib/duckdb-bundle.mjs';
 import { escapeHtml, escapeSource, escapeLikePattern, escapeColumnName, truncateColumnName, buildFilterClauses } from './viewer-utils.js';
 
 // DOM elements
@@ -120,19 +120,15 @@ async function initDuckDB() {
   status.textContent = 'Initializing DuckDB...';
   status.classList.add('loading');
 
-  const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
-  const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+  const bundle = {
+    mainModule: chrome.runtime.getURL('lib/duckdb-mvp.wasm'),
+    mainWorker: chrome.runtime.getURL('lib/duckdb-browser-mvp.worker.js'),
+  };
 
-  // Create worker from CDN bundle
-  const workerUrl = URL.createObjectURL(
-    new Blob([`importScripts("${bundle.mainWorker}");`], { type: 'text/javascript' })
-  );
-
-  const worker = new Worker(workerUrl);
+  const worker = new Worker(bundle.mainWorker);
   const logger = new duckdb.ConsoleLogger();
   db = new duckdb.AsyncDuckDB(logger, worker);
-  await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-  URL.revokeObjectURL(workerUrl);
+  await db.instantiate(bundle.mainModule);
 
   conn = await db.connect();
   status.classList.remove('loading');
@@ -224,6 +220,22 @@ async function getColumnMeta(source, cols) {
 }
 
 // === Rendering Functions ===
+
+function formatValue(val, type) {
+  if (val == null) return '';
+  const upperType = type.toUpperCase();
+  if (upperType.startsWith('DATE') || upperType.startsWith('TIMESTAMP')) {
+    const n = Number(val);
+    if (!isNaN(n)) {
+      const d = new Date(n);
+      if (upperType.startsWith('DATE')) {
+        return d.toISOString().slice(0, 10);
+      }
+      return d.toISOString().slice(0, 19).replace('T', ' ');
+    }
+  }
+  return String(val);
+}
 
 function renderSchema(cols, totalCols) {
   if (cols.length === 0) {
@@ -340,7 +352,7 @@ function renderRows(rows, cols, append = false) {
       `<td class="row-num">${rowNum.toLocaleString()}</td>` +
       cols.map(c => {
         const val = row[c.name];
-        const display = val === null ? '' : String(val);
+        const display = val === null ? '' : formatValue(val, c.type);
         const escaped = escapeHtml(display);
         return `<td title="${escapeHtml(`[${c.type}] ${display}`)}" data-value="${escaped}">${escaped}</td>`;
       }).join('') + '</tr>';
