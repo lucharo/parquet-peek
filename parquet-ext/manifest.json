@@ -14,7 +14,7 @@
     "service_worker": "background.js"
   },
   "web_accessible_resources": [{
-    "resources": ["viewer.html", "viewer-utils.js"],
+    "resources": ["viewer.html", "viewer.js", "viewer-utils.js"],
     "matches": ["<all_urls>"]
   }]
 }
