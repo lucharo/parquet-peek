@@ -64,9 +64,12 @@ Just parquet viewing.
 ## Development
 
 ```bash
-just test                # Run tests
-just bundle-for-chrome   # Create zip for Chrome Web Store
-just publish             # Upload to Chrome Web Store (requires setup)
+# Run tests
+just test
+# Create zip for Chrome Web Store
+just bundle-for-chrome
+# Upload to Chrome Web Store (requires setup)
+just publish
 ```
 
 ### Publishing setup
