@@ -22,6 +22,7 @@ let db, conn;
 let offset = 0;
 const CHUNK = 100;        // Rows per page
 const MAX_COLS = 100;     // Column cap for wide tables
+const MAX_ROWS = 5000;    // DOM row cap for performance
 const TIMEOUT_MS = 30000; // 30s timeout for network requests
 let totalRows = 0;
 let columns = [];
@@ -419,10 +420,21 @@ async function reloadData() {
     status.textContent = `${filename} — ${totalRows.toLocaleString()} rows × ${columns.length} cols${filterNote}`;
     status.classList.remove('loading');
 
-    // Update button with filtered count
-    const remaining = filteredCount - offset;
-    moreBtn.textContent = `Load next ${CHUNK} (${remaining.toLocaleString()} remaining)`;
-    moreBtn.disabled = remaining <= 0;
+    // Update buttons with filtered count respecting cap
+    const cap = Math.min(filteredCount, MAX_ROWS);
+    const remaining = cap - offset;
+    if (remaining <= 0) {
+      const capped = filteredCount > MAX_ROWS;
+      moreBtn.textContent = capped ? `${MAX_ROWS.toLocaleString()} row limit reached` : 'All rows loaded';
+      moreBtn.disabled = true;
+      loadAllBtn.disabled = true;
+    } else {
+      moreBtn.textContent = `Load next ${CHUNK} (${remaining.toLocaleString()} remaining)`;
+      moreBtn.disabled = false;
+      loadAllBtn.disabled = false;
+      const capNote = filteredCount > MAX_ROWS ? ` (${MAX_ROWS.toLocaleString()} row limit)` : '';
+      loadAllBtn.textContent = `Load all${capNote}`;
+    }
   } catch (e) {
     handleError(e);
   }
@@ -447,9 +459,20 @@ function setupClickToCopy() {
 
 function updateButtons() {
   buttons.classList.remove('hidden');
-  const remaining = totalRows - offset;
-  moreBtn.textContent = `Load next ${CHUNK} (${remaining.toLocaleString()} remaining)`;
-  moreBtn.disabled = remaining <= 0;
+  const cap = Math.min(totalRows, MAX_ROWS);
+  const remaining = cap - offset;
+  if (remaining <= 0) {
+    const capped = totalRows > MAX_ROWS;
+    moreBtn.textContent = capped ? `${MAX_ROWS.toLocaleString()} row limit reached` : 'All rows loaded';
+    moreBtn.disabled = true;
+    loadAllBtn.disabled = true;
+  } else {
+    moreBtn.textContent = `Load next ${CHUNK} (${remaining.toLocaleString()} remaining)`;
+    moreBtn.disabled = false;
+    loadAllBtn.disabled = false;
+    const capNote = totalRows > MAX_ROWS ? ` (${MAX_ROWS.toLocaleString()} row limit)` : '';
+    loadAllBtn.textContent = `Load all${capNote}`;
+  }
 }
 
 // === File Size Fetching ===
@@ -548,9 +571,9 @@ async function loadParquet(source, isUrl = true) {
   }
 
   // Update Load all button tooltip
-  const loadAllTooltip = `Load all ${totalRows.toLocaleString()} rows.\n` +
-    (fileSizeStr ? `File size: ${fileSizeStr}\n` : '') +
-    `This may be slow for large datasets.`;
+  const cappedNote = totalRows > MAX_ROWS ? `\nCapped at ${MAX_ROWS.toLocaleString()} rows for performance.` : '';
+  const loadAllTooltip = `Load all ${totalRows.toLocaleString()} rows.${cappedNote}\n` +
+    (fileSizeStr ? `File size: ${fileSizeStr}\n` : '');
   loadAllBtn.title = loadAllTooltip;
 
   status.textContent = statusText + ' — Loading first rows...';
@@ -574,7 +597,15 @@ async function loadMore() {
   moreBtn.textContent = 'Loading...';
 
   try {
-    const rows = await getRows(currentSource, columns, CHUNK, offset, sortColumn, sortDirection, filters, columnMeta);
+    const chunkSize = Math.min(CHUNK, MAX_ROWS - offset);
+    if (chunkSize <= 0) {
+      moreBtn.textContent = `${MAX_ROWS.toLocaleString()} row limit reached`;
+      moreBtn.disabled = true;
+      loadAllBtn.disabled = true;
+      return;
+    }
+
+    const rows = await getRows(currentSource, columns, chunkSize, offset, sortColumn, sortDirection, filters, columnMeta);
     offset += rows.length;
 
     renderRows(rows, columns, true);
@@ -587,9 +618,17 @@ async function loadMore() {
     const filteredCount = hasFilters
       ? await getFilteredRowCount(currentSource, filters, columnMeta)
       : totalRows;
-    const remaining = filteredCount - offset;
-    moreBtn.textContent = `Load next ${CHUNK} (${remaining.toLocaleString()} remaining)`;
-    moreBtn.disabled = remaining <= 0;
+    const cap = Math.min(filteredCount, MAX_ROWS);
+    const remaining = cap - offset;
+    if (remaining <= 0) {
+      const capped = filteredCount > MAX_ROWS;
+      moreBtn.textContent = capped ? `${MAX_ROWS.toLocaleString()} row limit reached` : 'All rows loaded';
+      moreBtn.disabled = true;
+      loadAllBtn.disabled = true;
+    } else {
+      moreBtn.textContent = `Load next ${CHUNK} (${remaining.toLocaleString()} remaining)`;
+      moreBtn.disabled = false;
+    }
   } catch (e) {
     handleError(e);
   }
@@ -604,20 +643,9 @@ async function loadAll() {
   const filteredCount = hasFilters
     ? await getFilteredRowCount(currentSource, filters, columnMeta)
     : totalRows;
-  const remaining = filteredCount - offset;
 
-  if (remaining <= 0) return;
-
-  // Warning for large loads
-  const WARN_THRESHOLD = 10000;
-  if (remaining > WARN_THRESHOLD) {
-    const confirmed = confirm(
-      `Load ${remaining.toLocaleString()} rows?\n\n` +
-      `This may be slow and use significant memory.\n` +
-      `Consider using filters to reduce the dataset.`
-    );
-    if (!confirmed) return;
-  }
+  const cap = Math.min(filteredCount, MAX_ROWS);
+  if (offset >= cap) return;
 
   loadAllBtn.disabled = true;
   moreBtn.disabled = true;
@@ -626,16 +654,18 @@ async function loadAll() {
   try {
     // Load in batches to show progress
     const BATCH = 1000;
-    while (offset < filteredCount) {
-      const rows = await getRows(currentSource, columns, BATCH, offset, sortColumn, sortDirection, filters, columnMeta);
+    while (offset < cap) {
+      const batchSize = Math.min(BATCH, cap - offset);
+      const rows = await getRows(currentSource, columns, batchSize, offset, sortColumn, sortDirection, filters, columnMeta);
       if (rows.length === 0) break;
       offset += rows.length;
       renderRows(rows, columns, true);
-      loadAllBtn.textContent = `Loading... ${offset.toLocaleString()}/${filteredCount.toLocaleString()}`;
+      loadAllBtn.textContent = `Loading... ${offset.toLocaleString()}/${cap.toLocaleString()}`;
     }
 
-    loadAllBtn.textContent = 'All loaded';
-    moreBtn.textContent = 'All rows loaded';
+    const capped = filteredCount > MAX_ROWS;
+    loadAllBtn.textContent = capped ? `Loaded ${MAX_ROWS.toLocaleString()} (row limit)` : 'All loaded';
+    moreBtn.textContent = capped ? `${MAX_ROWS.toLocaleString()} row limit reached` : 'All rows loaded';
     moreBtn.disabled = true;
     loadAllBtn.disabled = true;
   } catch (e) {
