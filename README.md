@@ -1,6 +1,6 @@
 # Parquet Peek
 
-![Parquet Peek](store-assets/promo_tile_440x280.png)
+<img src="store-assets/promo_tile_440x280.png" width="100%" alt="Parquet Peek">
 
 Browse, sort & filter Parquet files from your browser.
 
