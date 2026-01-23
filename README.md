@@ -7,10 +7,11 @@ Browse, sort & filter Parquet files from your browser.
 ## Installation
 
 1. Clone or download this repo
-2. Open Chrome and navigate to `chrome://extensions`
-3. Enable **Developer mode** (toggle in top right)
-4. Click **Load unpacked**
-5. Select the `parquet-ext/` folder
+2. Run `just build` to download and bundle DuckDB-wasm
+3. Open Chrome and navigate to `chrome://extensions`
+4. Enable **Developer mode** (toggle in top right)
+5. Click **Load unpacked**
+6. Select the `parquet-ext/` folder
 
 ## Usage
 
@@ -53,20 +54,22 @@ Just parquet viewing.
 - All processing happens via DuckDB-wasm in-browser
 - No data leaves your machine
 - No telemetry, analytics, or tracking
-- No external network calls beyond loading DuckDB-wasm from CDN
+- No external network calls (DuckDB-wasm is bundled with the extension)
 
 ## Tech
 
 - Chrome Extension (Manifest V3)
-- DuckDB-wasm via CDN
-- Pure HTML/CSS/JS (no build step)
+- DuckDB-wasm (bundled locally via `just build`)
+- Pure HTML/CSS/JS
 
 ## Development
 
 ```bash
+# Download and bundle DuckDB-wasm (required after clone)
+just build
 # Run tests
 just test
-# Create zip for Chrome Web Store
+# Create zip for Chrome Web Store (runs build automatically)
 just bundle-for-chrome
 # Upload to Chrome Web Store (requires setup)
 just publish
