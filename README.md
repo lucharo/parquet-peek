@@ -67,10 +67,10 @@ Just parquet viewing.
 ## Development
 
 ```bash
-just build              # download and bundle DuckDB-wasm (required after clone)
+just build              # bundle DuckDB-wasm (required after clone)
 just test               # run tests
-just bundle-for-chrome  # create zip for Chrome Web Store (runs build first)
-just publish            # upload to Chrome Web Store (requires .env setup)
+just bundle-for-chrome  # zip for Chrome Web Store
+just publish            # upload to Chrome Web Store
 ```
 
 ### Publishing setup
