@@ -231,7 +231,7 @@ function formatValue(val, type) {
       if (upperType.startsWith('DATE')) {
         return d.toISOString().slice(0, 10);
       }
-      return d.toISOString().slice(0, 19).replace('T', ' ');
+      return d.toISOString().slice(0, 19).replace('T', ' ') + ' UTC';
     }
   }
   return String(val);
@@ -475,10 +475,15 @@ async function getFileSize(url) {
 // URL bar click-to-copy
 function setupUrlBar() {
   urlBar.addEventListener('click', async () => {
+    const originalText = urlBar.textContent;
     try {
-      await navigator.clipboard.writeText(urlBar.textContent);
+      await navigator.clipboard.writeText(originalText);
+      urlBar.textContent = 'Copied to clipboard';
       urlBar.classList.add('copied');
-      setTimeout(() => urlBar.classList.remove('copied'), 300);
+      setTimeout(() => {
+        urlBar.textContent = originalText;
+        urlBar.classList.remove('copied');
+      }, 1200);
     } catch (err) {
       console.warn('URL copy failed:', err);
     }
