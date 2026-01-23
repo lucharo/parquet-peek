@@ -73,11 +73,6 @@ just bundle-for-chrome  # zip for Chrome Web Store
 just publish            # upload to Chrome Web Store
 ```
 
-### Publishing setup
+## License
 
-1. Pay the $5 developer fee at [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
-2. Manually create the first listing (upload zip + screenshots + description)
-3. Note your extension ID
-4. Create OAuth credentials in [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-5. Fill in `.env` with your credentials (see comments in file for details)
-6. Run `just publish`
+GPL v3 — see [LICENSE](LICENSE).
