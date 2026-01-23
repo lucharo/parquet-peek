@@ -1,0 +1,28 @@
+# Ralph working files
+.ralph/
+.ralph_session
+.call_count
+.claude_session_id
+.exit_signals
+.response_analysis
+.circuit_breaker_state
+.circuit_breaker_history
+.last_reset
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Secrets
+.env
+
+# Build artifacts
+*.zip
+*.pem
+
+# Scripts (generation helpers, not needed in extension)
+scripts/
