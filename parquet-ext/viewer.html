@@ -32,6 +32,11 @@
       .hint { color: #666; }
     }
 
+    /* Powered-by attribution */
+    #powered-by { font-size: 12px; color: #888; margin-bottom: 0.75rem; }
+    #powered-by a { color: #4a90d9; text-decoration: none; }
+    #powered-by a:hover { text-decoration: underline; }
+
     /* Status and schema */
     #status { margin-bottom: 1rem; }
     #schema { margin-bottom: 1rem; color: #555; font-size: 13px; line-height: 1.6; }
@@ -234,11 +239,14 @@
       .filter-row input, .filter-row select { background: #2a2a2a; border-color: #444; color: #e0e0e0; }
       button.warning { background: #3d2600; border-color: #ff9800; color: #ffb74d; }
       button.warning:hover { background: #4a2f00; }
+      #powered-by { color: #666; }
+      #powered-by a { color: #6ab0e8; }
     }
   </style>
 </head>
 <body>
   <div id="url-bar" class="hidden"></div>
+  <div id="powered-by">Powered by <a href="https://github.com/duckdb/duckdb-wasm" target="_blank" rel="noopener">DuckDB-wasm</a> · <span style="font-size: 18px; vertical-align: -2px;">🦆</span> · Built by <a href="https://github.com/lucharo" target="_blank" rel="noopener">@lucharo</a> · <a href="https://github.com/lucharo/parquet-peek" target="_blank" rel="noopener">Source</a></div>
   <div id="drop" class="hidden">Drop .parquet file here (or drag from downloads)</div>
   <div id="status">Initializing DuckDB...</div>
   <div id="schema"></div>
