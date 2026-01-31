@@ -27,6 +27,10 @@ jobs:
             echo "::error::Failed to read version from manifest.json"
             exit 1
           }
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            echo "::error::Version is empty or null in manifest.json"
+            exit 1
+          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Check if already published
