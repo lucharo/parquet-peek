@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Parquet Peek",
-  "version": "1.1",
+  "version": "1.2",
   "description": "Browse, sort & filter Parquet files from your browser.",
   "icons": {
     "16": "icons/icon16.png",
