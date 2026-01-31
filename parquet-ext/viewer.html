@@ -14,24 +14,6 @@
       background: #fff;
     }
 
-    /* Dark mode support */
-    @media (prefers-color-scheme: dark) {
-      body { background: #1a1a1a; color: #e0e0e0; }
-      th { background: #2a2a2a; }
-      td { border-color: #444; }
-      tr:hover { background: #2a2a2a; }
-      button { background: #2a2a2a; color: #e0e0e0; border-color: #555; }
-      button:hover { background: #333; }
-      #drop { border-color: #555; color: #888; }
-      #drop.drag { border-color: #888; background: #2a2a2a; }
-      .type { color: #888; }
-      #schema { color: #aaa; }
-      .error { background: #3a2020; border-color: #ff6b6b; color: #ff9999; }
-      .row-num { background: #2a2a2a; color: #666; }
-      .copied { background: #2a3a2a; }
-      .hint { color: #666; }
-    }
-
     /* Powered-by attribution */
     #powered-by { font-size: 12px; color: #888; margin-bottom: 0.75rem; }
     #powered-by a { color: #4a90d9; text-decoration: none; }
@@ -228,17 +210,71 @@
       margin-right: 4px;
     }
 
-    /* Dark mode additions */
+    /* ===========================================
+       DARK MODE - All overrides in one place
+       =========================================== */
     @media (prefers-color-scheme: dark) {
+      /* Enable dark color scheme for native form elements */
+      :root { color-scheme: dark; }
+
+      /* Base */
+      body { background: #1a1a1a; color: #e0e0e0; }
+
+      /* Table */
+      th { background: #2a2a2a; border-color: #444; }
+      td { background: #1a1a1a; border-color: #444; }
+      tr:hover td { background: #252525; }
+      td:not(.row-num):hover { background: #333; }
+
+      /* Row numbers */
+      .row-num { background: #222; color: #666; }
+
+      /* Cell states */
+      .copied { background: #2a3a2a !important; }
+
+      /* Sort headers */
+      th.sortable:hover { background: #333; }
+
+      /* Filter row */
+      .filter-row td { background: #222; }
+      .filter-row input,
+      .filter-row select {
+        background: #1a1a1a;
+        border-color: #444;
+        color: #e0e0e0;
+        color-scheme: dark;
+      }
+      .filter-row input::placeholder { color: #666; }
+      .filter-row select option {
+        background: #1a1a1a;
+        color: #e0e0e0;
+      }
+
+      /* Buttons */
+      button { background: #2a2a2a; color: #e0e0e0; border-color: #555; }
+      button:hover { background: #333; }
+      button.warning { background: #3d2600; border-color: #ff9800; color: #ffb74d; }
+      button.warning:hover { background: #4a2f00; }
+
+      /* URL bar */
       #url-bar { background: #2a2a2a; border-color: #444; color: #aaa; }
       #url-bar:hover { background: #333; }
       #url-bar.copied { background: #2a3a2a; }
+
+      /* Drop zone */
+      #drop { border-color: #555; color: #888; }
+      #drop.drag { border-color: #888; background: #2a2a2a; }
+
+      /* Schema */
+      #schema { color: #aaa; }
       #schema summary:hover { color: #fff; }
-      th.sortable:hover { background: #333; }
-      .filter-row td { background: #252525; }
-      .filter-row input, .filter-row select { background: #2a2a2a; border-color: #444; color: #e0e0e0; }
-      button.warning { background: #3d2600; border-color: #ff9800; color: #ffb74d; }
-      button.warning:hover { background: #4a2f00; }
+      .type { color: #888; }
+
+      /* Error */
+      .error { background: #3a2020; border-color: #ff6b6b; color: #ff9999; }
+
+      /* Misc */
+      .hint { color: #666; }
       #powered-by { color: #666; }
       #powered-by a { color: #6ab0e8; }
     }
