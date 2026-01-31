@@ -4,7 +4,7 @@ on:
   release:
     types: [created]
   schedule:
-    - cron: '0 9 * * *'  # Daily at 9 AM UTC
+    - cron: '0 20 */2 * *'  # Every 48 hours at 8 PM UTC
   workflow_dispatch:  # Manual trigger
 
 permissions:
@@ -79,7 +79,7 @@ jobs:
 
           if grep -q "ITEM_NOT_UPDATABLE" publish-output.txt; then
             echo "status=pending" >> $GITHUB_OUTPUT
-            echo "::notice::Previous version still in review. Will retry tomorrow."
+            echo "::notice::Previous version still in review. Will retry in 48 hours."
           elif [ $EXIT_CODE -eq 0 ]; then
             echo "status=success" >> $GITHUB_OUTPUT
           else
